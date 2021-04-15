@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-3" >
+    <div class="col-12">
+    <a href="{% url 'logout' %}" class="btn btn-outline-danger float-right">Logout</a>
+    </div>
+    <div class="d-flex flex-column justify-content-center w-100 align-items-center">
+        <h2 class="pb-3">Question {{ques_count}}</h2>
+        {% if buzzer_start %}
+            <span class="duration_timer d-none">{{ duration }}</span>
+            <h5 class="duration_timer_show"></h5>
+            <a href="{% url 'buzzer_end' ques_count  %}" class="btn btn-danger float-right">End Buzzer Time</a>
+        {% else %}
+            <a href="{% url 'buzzer_start' ques_count  %}" class="btn btn-primary float-right">Start Buzzer Time</a>
+        {% endif %}
+        {% if ques_count > 1 or buzzer_start %}
+        <div class="col-md-8">
+            <div class="dropdown float-right pb-3">
+                <button class="btn btn-secondary dropdown-toggle" id="navbarUserDropdown" data-toggle="dropdown" href="#">
+                    Filter 
+                </button>
+                <div class="dropdown-menu dropdown-menu-right dropdown-info">
+                    <a class="dropdown-item" href="{% url 'admin' %}">All</a>
+                    <div class="dropdown-divider"></div>
+                    {% for question in questions %}
+                        <a class="dropdown-item" href="{% url 'admin1' question %}">Ques {{question}}</a>
+                        {% if question != ques_count %}
+                            <div class="dropdown-divider"></div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div> 
+        </div>
+        <div class="col-md-8 px-0">
+            {% if  buzzer_logs %}
+            <table class="table text-center">
+                <tr>
+                    <th>S.No.</th>
+                    <th>Team</th>
+                    <th>Ques No.</th>
+                    <th>Name</th>
+                    <th>TimeStamp</th>
+                </tr>
+                {% for log in buzzer_logs %}
+                    <tr>
+                        <td>{{ log.sno }}</td>
+                        <td>{{ log.username }}</td>
+                        <td>{{ log.ques_id }}</td>
+                        <td>{{ log.name }}</td>
+                        <td>{{ log.timestamp }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+                <h4 class="text-center text-secondary">No records found</h4>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function(){
+        var name = window.localStorage.getItem('name',$("#name").val());
+        $("#name").text(name);
+
+
+        setInterval( function(){
+            durations = $(".duration_timer");
+            for(var i=0;i<durations.length;i++){
+                var dt = Number($(durations[i]).text())+1;
+                sec=String(Math.floor(dt%60));
+                if (sec.length==1){
+                    sec="0"+sec;
+                }
+                minu=String(Math.floor((dt/60)%60));
+                if (minu.length==1){
+                    minu="0"+minu;
+                }
+                hrs=String(Math.floor((dt/60/60)%24));
+                if (hrs.length==1){
+                    hrs="0"+hrs;
+                }
+                days=String(Math.floor(((dt/60)/60)/24));
+                    $(durations[i]).siblings(".duration_timer_show").text(minu+":"+sec);
+                $(durations[i]).text(dt);
+            }
+        },1000);	
+
+        durations = $(".duration_timer");
+        for(var i=0;i<durations.length;i++){
+            var dt = Number($(durations[i]).text())+1;
+            sec=String(Math.floor(dt%60));
+            console.log($(durations[i]).text())
+            if (sec.length==1){
+                sec="0"+sec;
+            }
+            minu=String(Math.floor((dt/60)%60));
+            if (minu.length==1){
+                minu="0"+minu;
+            }
+            hrs=String(Math.floor((dt/60/60)%24));
+            if (hrs.length==1){
+                hrs="0"+hrs;
+            }
+            days=String(Math.floor(((dt/60)/60)/24));
+            $(durations[i]).siblings(".duration_timer_show").text(minu+":"+sec);
+            $(durations[i]).text(dt);
+        }
+    
+    
+    });
+</script>
+{% endblock %}
