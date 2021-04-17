@@ -6,20 +6,9 @@
     <a href="{% url 'logout' %}" class="btn btn-outline-danger float-right">Logout</a>
     </div>
     <div class="d-flex flex-column justify-content-center w-100 align-items-center py-5">
-        <h1 class="pb-4">Welcome <span id="name"></span></h1>
+        <h1 class="pb-4">Welcome {{name}}</h1>
         <h2 class="py-3">Question {{ques_count}}</h2>
-        <a href="{% url 'press_buzzer' name='Tanu' %}" id="buzzer_btn" class="btn btn-primary float-right">Buzzer</a>
+        <a href="{% url 'press_buzzer' name %}" id="buzzer_btn" class="btn btn-primary float-right">Buzzer</a>
     </div>
 </div>
-{% endblock %}
-
-{% block js %}
-<script>
-    $(document).ready(function(){
-        var name = window.localStorage.getItem('name',$("#name").val());
-        $("#name").text(name);
-        var path = $("#buzzer_btn").attr("href").split("/");
-        $("#buzzer_btn").attr("href","/"+path[1]+"/"+name)
-    })  
-</script>
 {% endblock %}

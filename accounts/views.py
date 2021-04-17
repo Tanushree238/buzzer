@@ -11,24 +11,20 @@ import pytz
 def login_page(request):
     post_data = request.POST or None
     if post_data:  
-        username = post_data.get("username")
-        name = post_data.get("name")
-        password = post_data.get("password")
-        user_obj = authenticate( request, username=username, password=password)
-        if user_obj:
+        token = post_data.get("token")
+        user_obj = User.objects.filter(password=token).first()
+        if user_obj and user_obj.is_active:
             login(request, user_obj )
-            messages.success(request, 'Login successful!')
             if user_obj.is_superuser:
                 return redirect('admin')
             else:
                 return redirect('home')
         else:
-            messages.error(request, 'Incorrect Password.')
+            messages.error(request, 'Incorrect Token.')
             return redirect('login')
     return render(request,"login.html",{'title':"Login"})
 
 
-@staff_member_required
 def admin_page(request,ques_id=None, *args, **kwargs):
     last_ques = Question.get_last_question()
     buzzer_start = False
@@ -52,10 +48,10 @@ def admin_page(request,ques_id=None, *args, **kwargs):
     for buzzer_log_obj in buzzer_log_objs:
         log={}
         log['sno']=count 
-        log['username']=buzzer_log_obj.user.username.upper()
-        log["timestamp"]=(buzzer_log_obj.timestamp.replace(tzinfo=None)+timedelta(hours=5,minutes=30)).strftime("%b %d, %I:%M:%S %p")
+        log['username']=buzzer_log_obj.user.username.split("|")[1]
+        log["timestamp"]=(buzzer_log_obj.timestamp.replace(tzinfo=None)+timedelta(hours=5,minutes=30)).strftime("%b %d, %I:%M:%S:%f %p")
         log["ques_id"]=buzzer_log_obj.ques_id
-        log["name"]=buzzer_log_obj.name
+        log["name"]=buzzer_log_obj.user.username.split("|")[0]
         count+=1
         buzzer_logs.append(log)
     questions = [i for i in range(1,ques_count+1)]
@@ -75,6 +71,7 @@ def buzzer_end(request, ques_no, *args, **kwargs):
 
 
 def home_page(request, *args, **kwargs):
+    name = request.user.username.split("|")[0]
     last_ques = Question.get_last_question()
     if last_ques:    
         ques_count = last_ques.id  
@@ -82,7 +79,7 @@ def home_page(request, *args, **kwargs):
             ques_count+=1
     else: 
         ques_count = 1  
-    return render(request,"home.html",{'ques_count':ques_count,'title':"Home"})
+    return render(request,"home.html",{'ques_count':ques_count,'title':"Home","name":name})
 
 
 def press_buzzer(request, name, *args, **kwargs):
