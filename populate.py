@@ -32,7 +32,7 @@ for team, members in users.items():
     for member in members:
         name = member.split("@")[0] 
         if team == "Mentors":
-            mem_obj = User.objects.create(username=name+"|"+team, password = member, is_superuser=True)
+            mem_obj = User.objects.create(username=name+"|"+team, password = member, is_superuser=True, is_staff=True)
         else:
             mem_obj = User.objects.create(username=name+"|"+team, password = member)
         print(name,"'s entry done in user table")
